@@ -15,7 +15,7 @@ import {validation} from "../middlewares/validation.js";
 import {verifyToken} from "../middlewares/verifyToken.js";
 
 //validations
-import {loginValidation, registerValidation} from "../validations/userValidat6ions.js";
+import {loginValidation, registerValidation, updateProfileValidation} from "../validations/userValidations.js";
 
 const router = express.Router()
 
@@ -24,6 +24,6 @@ router.post("/register", validation(registerValidation), registerUser)
 router.post("/login", validation(loginValidation), loginUser)
 router.get("/profile", verifyToken, getProfile)
 router.put("/forget-password", forgetPassword)
-router.put("/profile", verifyToken, updateProfile)
+router.put("/profile", verifyToken, validation(updateProfileValidation), updateProfile)
 
 export default router

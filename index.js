@@ -7,6 +7,7 @@ import {errorHandler} from "./middlewares/errors.js";
 
 //routes
 import userRoutes from "./routes/userRoutes.js";
+import productRoutes from "./routes/productRoutes.js";
 
 // Load Config
 dotenv.config()
@@ -24,8 +25,11 @@ connectDB()
 
 //Routes
 app.use("/api/user", userRoutes)
+app.use("/api/product", productRoutes)
 
 // error handler
 app.use(errorHandler)
+
+
 const port = process.env.PORT || 5000
 app.listen(port, () => console.log(`server is listen on port : ${port}`))
