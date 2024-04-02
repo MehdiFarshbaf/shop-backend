@@ -1,29 +1,20 @@
-// import jwt from "jsonwebtoken";
-//
-// export const verifyToken = (req, res, next) => {
-//     const authHeader = req.headers["authorization"]
-//     const token = authHeader && authHeader.split(" ")[1]
-//     // console.log(authHeader);
-//     try {
-//         if (token == null) {
-//             const error = new Error("لطفا ابتدا وارد حساب کاربری خود شوید.")
-//             error.statusCode = 401
-//
-//             next(error)
-//         }
-//         jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decode) => {
-//             // console.log(decode);
-//             // if (err) return res.sendStatus(403)
-//             if (err) {
-//                 // console.log("monghzi");
-//                 const error = new Error("توکن منقضی شده است.")
-//                 error.statusCode = 403
-//                 next(error)
-//             }
-//             req.userId = decode.userId
-//             next()
-//         })
-//     } catch (err) {
-//         next(err)
-//     }
-// }
+import jwt from "jsonwebtoken";
+import {sendErrorResponse} from "../helper/responses.js";
+
+export const verifyToken = async (req, res, next) => {
+
+    const authHeader = req.headers["authorization"]
+    const token = authHeader && authHeader.split(" ")[1]
+
+    try {
+        if (token == null) sendErrorResponse("لطفا ابتدا وارد حساب کاربری خود شوید.", 401)
+
+        jwt.verify(token, process.env.JWT_SECRET, (err, decode) => {
+            if (err) sendErrorResponse("توکن منقضی شده است.", 403)
+            req.userId = decode.userId
+            next()
+        })
+    } catch (err) {
+        next(err)
+    }
+}

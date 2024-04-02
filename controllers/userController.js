@@ -50,7 +50,7 @@ export const loginUser = async (req, res, next) => {
         const match = await comparePassword(password, user.password)
         if (!match) sendErrorResponse("گذرواژه اشتباه است.", 401)
 
-        const token = await jwt.sign({}, process.env.JWT_SECRET, {
+        const token = await jwt.sign({userId: user._id}, process.env.JWT_SECRET, {
             expiresIn: "7d"
         })
         res.status(200).json({
@@ -66,6 +66,16 @@ export const loginUser = async (req, res, next) => {
                 address: user.address,
                 isAdmin: user.isAdmin
             }
+        })
+    } catch (err) {
+        next(err)
+    }
+}
+export const getProfile = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.userId).select(["-password"])
+        res.status(200).json({
+            profile:user
         })
     } catch (err) {
         next(err)
