@@ -71,11 +71,49 @@ export const loginUser = async (req, res, next) => {
         next(err)
     }
 }
+
 export const getProfile = async (req, res, next) => {
     try {
         const user = await User.findById(req.userId).select(["-password"])
         res.status(200).json({
-            profile:user
+            profile: user
+        })
+    } catch (err) {
+        next(err)
+    }
+}
+
+export const forgetPassword = async (req, res, next) => {
+    const {email, password} = req.body
+    try {
+        const user = await User.findOne({email})
+        if (!user) sendErrorResponse("کاربری با این ایمیل یافت نشد.", 404)
+        const hashedPassword = await hashed(password)
+        await User.findByIdAndUpdate(user._id, {password: hashedPassword})
+        res.status(200).json({
+            success: true,
+            message: "گذرواژه با موفقیت تغییر کرد."
+        })
+    } catch (err) {
+        next(err)
+    }
+}
+
+export const updateProfile = async (req, res, next) => {
+    const {firstName, lastName, username, address, email, mobile} = req.body
+    try {
+        const profile = await User.findByIdAndUpdate(req.userId, {
+            firstName,
+            lastName,
+            username,
+            address,
+            email,
+            mobile
+        }, {new: true}).select(["-password"])
+        res.status(200).json({
+            success: true,
+            message: "پروفایل با موفقیت ویرایش شد.",
+            profile
         })
     } catch (err) {
         next(err)

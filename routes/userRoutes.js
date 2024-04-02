@@ -1,7 +1,14 @@
 import express from "express";
 
 //controllers
-import {getAllUsers, getProfile, loginUser, registerUser} from "../controllers/userController.js";
+import {
+    forgetPassword,
+    getAllUsers,
+    getProfile,
+    loginUser,
+    registerUser,
+    updateProfile
+} from "../controllers/userController.js";
 
 //middlewares
 import {validation} from "../middlewares/validation.js";
@@ -16,5 +23,7 @@ router.get("/", getAllUsers)
 router.post("/register", validation(registerValidation), registerUser)
 router.post("/login", validation(loginValidation), loginUser)
 router.get("/profile", verifyToken, getProfile)
+router.put("/forget-password", forgetPassword)
+router.put("/profile", verifyToken, updateProfile)
 
 export default router
