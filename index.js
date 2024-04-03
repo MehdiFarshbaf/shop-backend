@@ -9,6 +9,7 @@ import {errorHandler} from "./middlewares/errors.js";
 import userRoutes from "./routes/userRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
+import blogRoutes from "./routes/blogRoutes.js";
 
 // Load Config
 dotenv.config()
@@ -28,6 +29,7 @@ connectDB()
 app.use("/api/user", userRoutes)
 app.use("/api/product", productRoutes)
 app.use("/api/category", categoryRoutes)
+app.use("/api/blog", blogRoutes)
 
 // error handler
 app.use(errorHandler)
