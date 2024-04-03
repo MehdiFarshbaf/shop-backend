@@ -60,3 +60,19 @@ export const getProduct = async (req, res, next) => {
         next(err)
     }
 }
+export const deleteProduct = async (req, res, next) => {
+    try {
+        const product = await Product.findById(req.params.id)
+
+        if (!product) sendErrorResponse("محصولی با این شناسه یافت نشد.", 404)
+
+        await Product.findByIdAndDelete(req.params.id)
+
+        res.status(200).json({
+            success: true,
+            message: `محصول ${product.title} با موفقیت پاک شد.`
+        })
+    } catch (err) {
+        next(err)
+    }
+}
