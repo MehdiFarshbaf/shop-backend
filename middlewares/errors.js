@@ -4,6 +4,6 @@ export const errorHandler = (error, req, res, next) => {
     const data = error.data
     const errors = error.errors || undefined
     res.status(status).json({
-        message, data, success: false, errors
+        success: false, message, data, errors
     })
 }

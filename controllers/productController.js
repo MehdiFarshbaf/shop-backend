@@ -1,4 +1,5 @@
 import Product from "../models/Product.js";
+import {sendErrorResponse} from "../helper/responses.js";
 
 export const getProducts = async (req, res, next) => {
     try {
@@ -20,7 +21,6 @@ export const createProduct = async (req, res, next) => {
         quantity,
         speciality,
         category,
-        Pcode,
         sendingType
     } = req.body
     const createPcode = len => {
@@ -40,6 +40,21 @@ export const createProduct = async (req, res, next) => {
         res.status(201).json({
             success: true,
             message: `محصول ${title} ایجاد شد.`
+        })
+    } catch (err) {
+        next(err)
+    }
+}
+
+export const getProduct = async (req, res, next) => {
+    try {
+        const product = await Product.findById(req.params.id)
+
+        if (!product) sendErrorResponse("محصولی با این شناسه یافت نشد.", 404)
+
+        res.status(200).json({
+            success: true,
+            product
         })
     } catch (err) {
         next(err)
