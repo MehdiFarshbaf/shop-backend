@@ -6,7 +6,8 @@ export const getProducts = async (req, res, next) => {
         const products = await Product.find()
         res.status(200).json({
             success: true,
-            products
+            products,
+            total: products.length
         })
     } catch (err) {
         next(err)
@@ -55,6 +56,37 @@ export const getProduct = async (req, res, next) => {
         res.status(200).json({
             success: true,
             product
+        })
+    } catch (err) {
+        next(err)
+    }
+}
+
+export const updateProduct = async (req, res, next) => {
+    const {
+        title, description, shortDescription, price, discount, mainImage,
+        model,
+        quantity,
+        speciality,
+        category,
+        sendingType
+    } = req.body
+    try {
+        const product = await Product.findById(req.params.id)
+        if (!product) sendErrorResponse("محصولی با این شناسه یافت نشد.", 404)
+        const updateP = await Product.findByIdAndUpdate(req.params.id, {
+            title, description, shortDescription, price, discount, mainImage,
+            model,
+            quantity,
+            speciality,
+            category,
+            sendingType
+        }, {new: true})
+
+        res.status(200).json({
+            success: true,
+            message: "ویرایش محصول موفقیت آمیز بود.",
+            product: updateP
         })
     } catch (err) {
         next(err)
