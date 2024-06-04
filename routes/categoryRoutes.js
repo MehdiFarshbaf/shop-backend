@@ -11,19 +11,21 @@ import {
 
 //middlewares
 import {validateMongoDbId} from "../middlewares/validateMongoDbId.js";
-import {verifyToken} from "../middlewares/verifyToken.js";
 import {validation} from "../middlewares/validation.js";
+import {verifyAdmin} from "../middlewares/verifyAdmin.js";
+import {checkPermission} from "../middlewares/checkPermission.js";
 
 //validations
 import {createCategorySchema} from "../validations/categorySchemas.js";
+
 
 const router = express.Router()
 
 //crud
 router.get("/", getCategories)
 router.get("/:id", validateMongoDbId, getCategory)
-router.post("/", verifyToken, validation(createCategorySchema), createCategory)
-router.put("/:id", verifyToken, validateMongoDbId, validation(createCategorySchema), updateCategory)
-router.delete("/:id", verifyToken, validateMongoDbId, deleteCategory)
+router.post("/", verifyAdmin,checkPermission("create_category"), validation(createCategorySchema), createCategory)
+router.put("/:id", verifyAdmin, checkPermission("update_category"), validateMongoDbId, validation(createCategorySchema), updateCategory)
+router.delete("/:id", verifyAdmin, checkPermission("delete_category"), validateMongoDbId, deleteCategory)
 
 export default router

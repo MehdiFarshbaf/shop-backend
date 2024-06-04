@@ -3,3 +3,4 @@ export const sendErrorResponse = (message, statusCode) => {
     error.statusCode = statusCode
     throw error
 }
+

@@ -1,10 +1,11 @@
 import Blog from "../models/Blog.js";
 import {sendErrorResponse} from "../helper/responses.js";
-import blog from "../models/Blog.js";
+
 
 export const getBlogs = async (req, res, next) => {
     try {
         const blogs = await Blog.find()
+
         res.status(200).json({
             success: true,
             blogs,

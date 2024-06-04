@@ -1,14 +1,31 @@
 import User from "../models/User.js";
-import {comparePassword, hashed} from "../helper/authHelper.js";
-import {sendErrorResponse} from "../helper/responses.js";
+import { comparePassword, hashed } from "../helper/authHelper.js";
+import { sendErrorResponse } from "../helper/responses.js";
 import jwt from 'jsonwebtoken'
 
 export const getAllUsers = async (req, res, next) => {
     try {
         const users = await User.find().select("-password")
+
         res.json({
             success: true,
-            users
+            users,
+            total: users.length
+        })
+
+    } catch (err) {
+        next(err)
+    }
+}
+
+export const getUser = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.params.id).select("-password")
+
+        if (!user) sendErrorResponse("کاربری با این شناسه یافت نشد.", 404)
+        res.status(200).json({
+            success: true,
+            user
         })
     } catch (err) {
         next(err)
@@ -16,9 +33,9 @@ export const getAllUsers = async (req, res, next) => {
 }
 
 export const registerUser = async (req, res, next) => {
-    const {firstName, lastName, email, username, password, mobile, address} = req.body
+    const { firstName, lastName, email, username, password, mobile, address } = req.body
     try {
-        const existUser = await User.findOne({email})
+        const existUser = await User.findOne({ email })
         if (existUser) sendErrorResponse("کاربری با این ایمیل قبلا ثبت نام کرده است.", 422)
 
         const hashedPassword = await hashed(password)
@@ -42,15 +59,15 @@ export const registerUser = async (req, res, next) => {
 }
 
 export const loginUser = async (req, res, next) => {
-    const {email, password} = req.body
+    const { email, password } = req.body
     try {
-        const user = await User.findOne({email})
+        const user = await User.findOne({ email })
         if (!user) sendErrorResponse("کاربری با این ایمیل یافت نشد.", 404)
 
         const match = await comparePassword(password, user.password)
         if (!match) sendErrorResponse("گذرواژه اشتباه است.", 401)
 
-        const token = await jwt.sign({userId: user._id}, process.env.JWT_SECRET, {
+        const token = await jwt.sign({ userId: user._id }, process.env.JWT_SECRET_USER, {
             expiresIn: "7d"
         })
         res.status(200).json({
@@ -84,12 +101,12 @@ export const getProfile = async (req, res, next) => {
 }
 
 export const forgetPassword = async (req, res, next) => {
-    const {email, password} = req.body
+    const { email, password } = req.body
     try {
-        const user = await User.findOne({email})
+        const user = await User.findOne({ email })
         if (!user) sendErrorResponse("کاربری با این ایمیل یافت نشد.", 404)
         const hashedPassword = await hashed(password)
-        await User.findByIdAndUpdate(user._id, {password: hashedPassword})
+        await User.findByIdAndUpdate(user._id, { password: hashedPassword })
         res.status(200).json({
             success: true,
             message: "گذرواژه با موفقیت تغییر کرد."
@@ -100,7 +117,7 @@ export const forgetPassword = async (req, res, next) => {
 }
 
 export const updateProfile = async (req, res, next) => {
-    const {firstName, lastName, username, address, email, mobile} = req.body
+    const { firstName, lastName, username, address, email, mobile } = req.body
     try {
         const profile = await User.findByIdAndUpdate(req.userId, {
             firstName,
@@ -109,11 +126,26 @@ export const updateProfile = async (req, res, next) => {
             address,
             email,
             mobile
-        }, {new: true}).select(["-password"])
+        }, { new: true }).select(["-password"])
         res.status(200).json({
             success: true,
             message: "پروفایل با موفقیت ویرایش شد.",
             profile
+        })
+    } catch (err) {
+        next(err)
+    }
+}
+
+export const deleteUser = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.params.id)
+        if (!user) sendErrorResponse("کاربری با این شناسه یافت نشد.", 404)
+
+        await User.findByIdAndDelete(req.params.id)
+        res.status(200).json({
+            success: true,
+            message: `${user.fullname} با موفقیت حذف شد.`
         })
     } catch (err) {
         next(err)

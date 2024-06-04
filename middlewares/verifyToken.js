@@ -9,7 +9,7 @@ export const verifyToken = async (req, res, next) => {
     try {
         if (token == null) sendErrorResponse("لطفا ابتدا وارد حساب کاربری خود شوید.", 401)
 
-        jwt.verify(token, process.env.JWT_SECRET, (err, decode) => {
+        jwt.verify(token, process.env.JWT_SECRET_USER, (err, decode) => {
             if (err) sendErrorResponse("توکن منقضی شده است.", 403)
             req.userId = decode.userId
             next()
