@@ -4,7 +4,7 @@ import {sendErrorResponse} from "../helper/responses.js";
 
 export const getBlogs = async (req, res, next) => {
     try {
-        const blogs = await Blog.find()
+        const blogs = await Blog.find().populate("category", ["name", "url"])
 
         res.status(200).json({
             success: true,
@@ -31,7 +31,14 @@ export const getBlog = async (req, res, next) => {
 export const createBlogs = async (req, res, next) => {
     const {title, description, shortDescription, mainImage, writer, category} = req.body
     try {
-        const blog = await Blog.create({title, description, shortDescription, mainImage, writer, category})
+        const blog = await Blog.create({
+            title,
+            description,
+            shortDescription,
+            mainImage,
+            writer: req.admin.fullname,
+            category
+        })
 
         res.status(201).json({
             success: true,

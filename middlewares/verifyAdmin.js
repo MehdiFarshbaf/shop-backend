@@ -18,12 +18,8 @@ export const verifyAdmin = async (req, res, next) => {
                 })
                 // sendErrorResponse("توکن منقضی شده است.", 422)
             }
-            // if (err) {
-            //     const error = new Error("توکن منقضی شده است.")
-            //     error.statusCode = 403
-            //     throw error
-            // }
-            const admin = await Admin.findOne({email: decode.email}).select(["-password"]).populate("role")
+console.log(decode);
+            const admin = await Admin.findOne({email: decode?.email}).select(["-password"]).populate("role")
             req.admin = admin
             next()
         })
