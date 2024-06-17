@@ -19,7 +19,7 @@ const router = express.Router()
 //crud blog
 router.get("/", getBlogs)
 router.get("/:id", validateMongoDbId, getBlog)
-router.post("/", verifyAdmin, checkPermission("create_blog"), checkIdFor("category", "دسته بندی"), validation(createBlogSchema), createBlogs)
+router.post("/", verifyAdmin, checkPermission("create_blog"), checkIdFor("category_id", "دسته بندی"), validation(createBlogSchema), createBlogs)
 router.put("/:id", verifyAdmin, checkPermission("update_blog"), validateMongoDbId, validation(createBlogSchema), updateBlogs)
 router.delete("/:id", verifyAdmin, checkPermission("delete_blog"), validateMongoDbId, deleteBlog)
 export default router

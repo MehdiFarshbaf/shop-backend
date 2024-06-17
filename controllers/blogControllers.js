@@ -1,5 +1,6 @@
 import Blog from "../models/Blog.js";
 import {sendErrorResponse} from "../helper/responses.js";
+import Category from "../models/Category.js";
 
 
 export const getBlogs = async (req, res, next) => {
@@ -29,15 +30,19 @@ export const getBlog = async (req, res, next) => {
     }
 }
 export const createBlogs = async (req, res, next) => {
-    const {title, description, shortDescription, mainImage, writer, category} = req.body
+    const {title, description, shortDescription, mainImage, category_id} = req.body
     try {
+
+        const exitCategory = await Category.findById(category_id)
+        if (!exitCategory) sendErrorResponse("دسته بندی با این شناسه یافت نشد.", 404)
+
         const blog = await Blog.create({
             title,
             description,
             shortDescription,
             mainImage,
             writer: req.admin.fullname,
-            category
+            category_id
         })
 
         res.status(201).json({
