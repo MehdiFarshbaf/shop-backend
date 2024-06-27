@@ -1,6 +1,7 @@
 import Blog from "../models/Blog.js";
 import {sendErrorResponse} from "../helper/responses.js";
 import Category from "../models/Category.js";
+import {handleDeleteFile, storeImage} from "../helper/storeImage.js";
 
 
 export const getBlogs = async (req, res, next) => {
@@ -30,17 +31,19 @@ export const getBlog = async (req, res, next) => {
     }
 }
 export const createBlogs = async (req, res, next) => {
-    const {title, description, shortDescription, mainImage, category_id} = req.body
+    const {title, description, shortDescription, category_id} = req.body
     try {
 
         const exitCategory = await Category.findById(category_id)
         if (!exitCategory) sendErrorResponse("دسته بندی با این شناسه یافت نشد.", 404)
+        const {fileName, url} = await storeImage(req, res, next, "blog")
 
         const blog = await Blog.create({
             title,
             description,
             shortDescription,
-            mainImage,
+            url,
+            image: fileName,
             writer: req.admin.fullname,
             category_id
         })
@@ -55,17 +58,35 @@ export const createBlogs = async (req, res, next) => {
     }
 }
 export const updateBlogs = async (req, res, next) => {
-    const {title, description, shortDescription, mainImage, writer, category} = req.body
+    const {title, description, shortDescription, category_id} = req.body
     try {
+        let fileName = ""
+        let url = ""
+
         const findBlog = await Blog.findById(req.params.id)
         if (!findBlog) sendErrorResponse("پستی با این شناسه یافت نشد.", 404)
+
+        const exitCategory = await Category.findById(category_id)
+        if (!exitCategory) sendErrorResponse("دسته بندی با این شناسه یافت نشد.", 404)
+
+        if (req.files === null) {
+            fileName = findBlog.image
+            url = findBlog.url
+        } else {
+            await handleDeleteFile("blog", findBlog.image)
+            const {fileName: newFileName, url: newUrl} = await storeImage(req, res, next, "blog")
+            fileName = newFileName
+            url = newUrl
+        }
+
         const blog = await Blog.findByIdAndUpdate(req.params.id, {
             title,
+            image: fileName,
+            url,
             description,
             shortDescription,
-            mainImage,
-            writer,
-            category
+            writer: req.admin.fullname,
+            category_id
         }, {new: true})
 
         res.status(200).json({
@@ -81,7 +102,11 @@ export const deleteBlog = async (req, res, next) => {
     try {
         const findBlog = await Blog.findById(req.params.id)
         if (!findBlog) sendErrorResponse("پستی با این شناسه یافت نشد.", 404)
+
+        await handleDeleteFile("blog", findBlog.image)
+
         await Blog.findByIdAndDelete(req.params.id)
+
         res.status(200).json({
             success: true,
             message: `پست ${findBlog.title} با موفقیت حذف شد.`

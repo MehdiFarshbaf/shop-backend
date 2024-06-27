@@ -4,7 +4,8 @@ const blogSchema = new mongoose.Schema({
     title: String,
     description: String,
     shortDescription: String,
-    mainImage: String,
+    url: String,
+    image: String,
     writer: String,
     category_id: {
         type: mongoose.Schema.Types.ObjectId,

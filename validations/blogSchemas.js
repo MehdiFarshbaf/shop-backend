@@ -5,5 +5,4 @@ export const createBlogSchema = Yup.object().shape({
         .min(3, "عنوان پست نباید کمتر از 3 کاراکتر باشد"),
     description: Yup.string().required("توضیحات پست الزامی می باشد"),
     shortDescription: Yup.string().required("توضیحات کوتاه پست الزامی می باشد"),
-    mainImage: Yup.string().required("تصویر پست الزامی می باشد"),
 })

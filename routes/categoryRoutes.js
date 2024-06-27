@@ -18,10 +18,10 @@ import {checkPermission} from "../middlewares/checkPermission.js";
 //validations
 import {createCategorySchema} from "../validations/categorySchemas.js";
 
-
 const router = express.Router()
 
 //crud
+
 router.get("/", getCategories)
 router.get("/:id", validateMongoDbId, getCategory)
 router.post("/", verifyAdmin,checkPermission("create_category"), validation(createCategorySchema), createCategory)
