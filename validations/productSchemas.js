@@ -9,5 +9,11 @@ export const createProductSchema = Yup.object().shape({
         .min(4, "توضیحات کوتاه محصول نباید کمتر از 4 کاراکتر باشد"),
     price: Yup.number().typeError("برای قیمت مقدار عددی وارد کنید.").required("قیمت الزامی است."),
     discount: Yup.number().typeError("برای تخفیف مقدار عددی وارد کنید.").min(0, `کمترین مقدار تخفیف 0 است.`),
-    quantity: Yup.number().typeError("برای تعداد مقدار عددی وارد کنید.").min(0, `کمترین مقدار تعداد 0 است.`)
+    quantity: Yup.number().typeError("برای تعداد مقدار عددی وارد کنید.").min(0, `کمترین مقدار تعداد 0 است.`).required("تعداد برای محصول الزامی است."),
+    sendingType: Yup.mixed().oneOf(
+        ["today", "fast", "country"],
+        `لطفا یکی از حالات ارسال "امروز" یا "سریع" یا "سراسر کشور" را انتخاب کنید.`
+    ).required("انتخاب حالت ارسال برای محصول الزامی است."),
+    model: Yup.string().required("تعریف مدل برای محصول الزامی است."),
+    speciality: Yup.string().required("تعریف ویژگی برای محصول الزامی است.")
 })

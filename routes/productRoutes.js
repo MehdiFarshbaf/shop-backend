@@ -24,8 +24,8 @@ const router = express.Router()
 //crud product
 router.get("/", getProducts)
 router.get("/:id", validateMongoDbId, getProduct)
-router.put("/:id", verifyAdmin,checkPermission("create_product"), validateMongoDbId, validation(createProductSchema), updateProduct)
-router.post("/", verifyAdmin,checkPermission("update_product"), validation(createProductSchema), createProduct)
-router.delete("/:id", verifyAdmin,checkPermission("delete_product"), validateMongoDbId, deleteProduct)
+router.put("/:id", verifyAdmin, checkPermission("update_product"), validateMongoDbId, validation(createProductSchema), updateProduct)
+router.post("/", verifyAdmin, checkPermission("create_product"), validation(createProductSchema), createProduct)
+router.delete("/:id", verifyAdmin, checkPermission("delete_product"), validateMongoDbId, deleteProduct)
 
 export default router

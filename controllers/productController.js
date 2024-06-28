@@ -1,9 +1,10 @@
 import Product from "../models/Product.js";
 import {sendErrorResponse} from "../helper/responses.js";
+import Category from "../models/Category.js";
 
 export const getProducts = async (req, res, next) => {
     try {
-        const products = await Product.find()
+        const products = await Product.find().populate("category", ["name", "url"])
         res.status(200).json({
             success: true,
             products,
@@ -21,9 +22,14 @@ export const createProduct = async (req, res, next) => {
         model,
         quantity,
         speciality,
-        category,
+        category_id,
         sendingType
     } = req.body
+
+    const exitCategory = await Category.findById(category_id)
+    if (!exitCategory) sendErrorResponse("دسته بندی با این شناسه یافت نشد.", 404)
+
+
     const createPcode = len => {
         Math.random().toString(36).substring(2, len + 2)
     }
@@ -33,7 +39,7 @@ export const createProduct = async (req, res, next) => {
             model,
             quantity,
             speciality,
-            category,
+            category_id,
             Pcode: createPcode(2),
             sendingType
         })

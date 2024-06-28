@@ -19,7 +19,7 @@ export const getBlogs = async (req, res, next) => {
 }
 export const getBlog = async (req, res, next) => {
     try {
-        const blog = await Blog.findById(req.params.id)
+        const blog = await Blog.findById(req.params.id).populate("category", ["name", "url"])
         if (!blog) sendErrorResponse("پستی با این شناسه یافت نشد.", 404)
 
         res.status(200).json({
@@ -36,6 +36,7 @@ export const createBlogs = async (req, res, next) => {
 
         const exitCategory = await Category.findById(category_id)
         if (!exitCategory) sendErrorResponse("دسته بندی با این شناسه یافت نشد.", 404)
+
         const {fileName, url} = await storeImage(req, res, next, "blog")
 
         const blog = await Blog.create({
