@@ -13,7 +13,8 @@ export const createProductSchema = Yup.object().shape({
     sendingType: Yup.mixed().oneOf(
         ["today", "fast", "country"],
         `لطفا یکی از حالات ارسال "امروز" یا "سریع" یا "سراسر کشور" را انتخاب کنید.`
-    ).required("انتخاب حالت ارسال برای محصول الزامی است."),
+    ),
+    // .required("انتخاب حالت ارسال برای محصول الزامی است."),
     model: Yup.string().required("تعریف مدل برای محصول الزامی است."),
     speciality: Yup.string().required("تعریف ویژگی برای محصول الزامی است.")
 })

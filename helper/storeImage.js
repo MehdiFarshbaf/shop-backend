@@ -1,8 +1,7 @@
-import * as path from "path";
+import path from "path";
 import fs from "fs";
-
 import {sendErrorResponse} from "./responses.js";
-import {allowTypesImages} from "../config/config.js";
+import {allowTypesImages, baseURL} from "../config/config.js";
 
 
 export const storeImage = async (req, res, next, address, required = true) => {
@@ -16,14 +15,19 @@ export const storeImage = async (req, res, next, address, required = true) => {
     const ext = path.extname(file.name)
     const dateNow = Math.round(Date.now())
     const fileName = dateNow + ext
-    const url = `${req.protocol}://${req.get("host")}/${address}/${fileName}`
+
+    // for local
+    // const url = `${req.protocol}://${req.get("host")}/${address}/${fileName}`
+
+    // for server
+    const url = process.env.NODE_ENV === "production" ? `${baseURL}/${address}/${fileName}` : `${req.protocol}://${req.get("host")}/${address}/${fileName}`
+
 
     if (!allowTypesImages.includes(ext.toLowerCase())) sendErrorResponse("فرمت عکس مجاز نیست.", 422)
     if (fileSize > 2000000) sendErrorResponse("حجم تصویر نباید بیشتر از 2 مگابایت باشد.", 422)
     try {
         await file.mv(`./public/${address}/${fileName}`, async (err) => {
             if (err) {
-                console.log("error in store image", err)
                 res.status(422).json({
                     success: false,
                     type: "store",
@@ -33,7 +37,6 @@ export const storeImage = async (req, res, next, address, required = true) => {
         })
         return {fileName, url}
     } catch (err) {
-        console.log("run catch in storage", err)
         next(err)
     }
 }
@@ -45,10 +48,4 @@ export const handleDeleteFile = async (type, fileName) => {
     } else {
         console.log("not file")
     }
-    // try {
-    //     await fs.unlinkSync(filePath)
-    // } catch (err) {
-    //     throw err
-    // }
-
 }

@@ -1,6 +1,7 @@
 import Product from "../models/Product.js";
-import {sendErrorResponse} from "../helper/responses.js";
+import { sendErrorResponse } from "../helper/responses.js";
 import Category from "../models/Category.js";
+import { handleDeleteFile, storeImage } from "../helper/storeImage.js";
 
 export const getProducts = async (req, res, next) => {
     try {
@@ -17,8 +18,7 @@ export const getProducts = async (req, res, next) => {
 
 export const createProduct = async (req, res, next) => {
     const {
-        title, description, shortDescription, price, discount, mainImage,
-        // subImage,
+        title, description, shortDescription, price, discount,
         model,
         quantity,
         speciality,
@@ -26,16 +26,25 @@ export const createProduct = async (req, res, next) => {
         sendingType
     } = req.body
 
-    const exitCategory = await Category.findById(category_id)
-    if (!exitCategory) sendErrorResponse("دسته بندی با این شناسه یافت نشد.", 404)
 
-
-    const createPcode = len => {
-        Math.random().toString(36).substring(2, len + 2)
-    }
     try {
+        const exitCategory = await Category.findById(category_id)
+        if (!exitCategory) sendErrorResponse("دسته بندی با این شناسه یافت نشد.", 404)
+
+
+        const createPcode = len => {
+            Math.random().toString(36).substring(2, len + 2)
+        }
+
+        const { fileName, url } = await storeImage(req, res, next, "products")
+
+
         const product = await Product.create({
-            title, description, shortDescription, price, discount, mainImage,
+            title, description, shortDescription, price, discount,
+            // mainImage: req.files.mainImage[0].filename,
+            // subImage: req.files.subImage,
+            url,
+            image: fileName,
             model,
             quantity,
             speciality,
@@ -55,7 +64,7 @@ export const createProduct = async (req, res, next) => {
 
 export const getProduct = async (req, res, next) => {
     try {
-        const product = await Product.findById(req.params.id)
+        const product = await Product.findById(req.params.id).populate("category", ["name", "url"])
 
         if (!product) sendErrorResponse("محصولی با این شناسه یافت نشد.", 404)
 
@@ -74,7 +83,7 @@ export const updateProduct = async (req, res, next) => {
         model,
         quantity,
         speciality,
-        category,
+        category, category_id,
         sendingType
     } = req.body
     try {
@@ -85,9 +94,9 @@ export const updateProduct = async (req, res, next) => {
             model,
             quantity,
             speciality,
-            category,
+            category_id,
             sendingType
-        }, {new: true})
+        }, { new: true })
 
         res.status(200).json({
             success: true,
@@ -103,6 +112,8 @@ export const deleteProduct = async (req, res, next) => {
         const product = await Product.findById(req.params.id)
 
         if (!product) sendErrorResponse("محصولی با این شناسه یافت نشد.", 404)
+
+        await handleDeleteFile("products", product.image)
 
         await Product.findByIdAndDelete(req.params.id)
 

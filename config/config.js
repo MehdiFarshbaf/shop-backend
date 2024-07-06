@@ -37,6 +37,8 @@ export const superAdmin = {
     email: 'mehdifarshbaf92@gmail.com',
     password: 'Mehdi14439',
     mobile: '09039067633',
-    fullname: 'مهدی فرشباف'
+    fullname: 'Mehdi Farshbaf'
 }
 export const allowTypesImages = ['.jpg', '.jpeg', '.png']
+
+export const baseURL = "https://back-shop.farshbaf-dev.ir"
