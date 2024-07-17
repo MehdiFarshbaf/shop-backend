@@ -4,24 +4,27 @@ import express from "express";
 import {
     createAdmin,
     deleteAdmin,
+    getAdmin,
     getAllAdmins,
     loginAdmin,
-    updateProfileAdmin
+    updateAdmin
 } from "../controllers/adminControllers.js";
 
 //middleware
-import {validation} from "../middlewares/validation.js";
-import {validateMongoDbId} from "../middlewares/validateMongoDbId.js";
+import { validation } from "../middlewares/validation.js";
+import { validateMongoDbId } from "../middlewares/validateMongoDbId.js";
+import { verifyAdmin } from "../middlewares/verifyAdmin.js";
 
 //validations
-import {adminSchema, loginAdminSchema} from "../validations/adminSchemas.js";
+import { adminCreateSchema, adminUpdateSchema, loginAdminSchema } from "../validations/adminSchemas.js";
 
 const router = express.Router()
 
-router.get("/", getAllAdmins)
-router.post("/", validation(adminSchema), createAdmin)
-router.delete("/:id", validateMongoDbId, deleteAdmin)
-router.put("/:id", validateMongoDbId, updateProfileAdmin)
+router.get("/", verifyAdmin, getAllAdmins)
+router.get("/:id", verifyAdmin, getAdmin)
+router.post("/", verifyAdmin, validation(adminCreateSchema), createAdmin)
+router.delete("/:id", verifyAdmin, validateMongoDbId, deleteAdmin)
+router.put("/:id", verifyAdmin, validateMongoDbId, validation(adminUpdateSchema), updateAdmin)
 
-router.post("/login",validation(loginAdminSchema), loginAdmin)
+router.post("/login", validation(loginAdminSchema), loginAdmin)
 export default router

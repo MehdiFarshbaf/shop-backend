@@ -6,6 +6,7 @@ export const getAllFAQ = async (req, res, next) => {
         const faqs = await FAQ.find()
         res.status(200).json({
             success: true, faqs,
+            faqs,
             total: faqs.length
         })
     } catch (err) {

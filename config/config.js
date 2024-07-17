@@ -1,8 +1,8 @@
 export const permissionsList = [
     {id: 0, title: "dashboard", key: "dashboard"},
     {id: 1, title: "admins", key: "admins"},
-    {id: 2, title: "create admins", key: "create_admins"},
-    {id: 3, title: "delete admin", key: "delete admin"},
+    {id: 2, title: "create admins", key: "create_admin"},
+    {id: 3, title: "delete admin", key: "delete_admin"},
     {id: 4, title: "update admin", key: "update_admin"},
     {id: 5, title: "users", key: "users"},
     {id: 6, title: "update user", key: "update_user"},

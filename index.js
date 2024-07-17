@@ -22,14 +22,15 @@ import dashboardRoutes from "./routes/dashboardRoutes.js";
 import faqRoutes from "./routes/faqRoutes.js";
 
 // Load Config
-if (process.env.NODE_ENV == "development") {
+// if (process.env.NODE_ENV == "development") {
     dotenv.config()
-}
+// }
 
 const app = new express()
 
 // BodyParser & headers
-app.use(cors({credentials: true, origin: 'http://localhost:3003'}))
+// app.use(cors({credentials: true, origin: 'http://localhost:3003'}))
+app.use(cors({credentials: true, origin: '*'}))
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({extended: false}))
