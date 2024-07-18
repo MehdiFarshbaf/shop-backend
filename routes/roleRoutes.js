@@ -16,12 +16,9 @@ const router = express.Router()
 
 //crud roles
 router.get("/", getAllRole)
-// router.get("/:id", validateMongoDbId, getRoleById)
-router.get("/:id", validateMongoDbId, getRoleById)
-// router.post("/", verifyAdmin, checkPermission("create_role"), validation(createRoleSchema), createRole)
-router.post("/", verifyAdmin, validation(createRoleSchema), createRole)
-// router.put("/", verifyAdmin, validateMongoDbId, checkPermission("update_role"), updateRole)
-router.put("/", verifyAdmin, validateMongoDbId, updateRole)
-// router.delete("/:id", verifyAdmin, validateMongoDbId, checkPermission("delete_role"), deleteRole)
-router.delete("/:id", verifyAdmin, validateMongoDbId, deleteRole)
+router.get("/:id", verifyAdmin, validateMongoDbId, getRoleById)
+router.post("/", verifyAdmin, checkPermission("create_role"), validation(createRoleSchema), createRole)
+router.put("/:id", verifyAdmin, validateMongoDbId, checkPermission("update_role"), updateRole)
+router.delete("/:id", verifyAdmin, validateMongoDbId, checkPermission("delete_role"), deleteRole)
+
 export default router

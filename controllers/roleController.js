@@ -19,7 +19,7 @@ export const createRole = async (req, res, next) => {
     try {
 
         const exsitRole = await Role.findOne({ name })
-        console.log(exsitRole);
+
         if (!exsitRole) {
             const role = await Role.create({ name, permissions })
             res.json({
@@ -48,10 +48,23 @@ export const getRoleById = async (req, res, next) => {
     }
 }
 export const updateRole = async (req, res, next) => {
+    const { name, permissions } = req.body
     try {
+        // check exist role
+        const exsitRole = await Role.findById(req.params.id)
+
+        if (!exsitRole) sendErrorResponse('نقشی با این شناسه یافت نشد.', 404)
+
+        // check super admin role
+        if (exsitRole.key === 'super_admin') sendErrorResponse("نقش ادمین اصلی غیر قابل ویرایش است.", 422)
+        // update role
+        const newRole = await Role.findByIdAndUpdate(req.params.id, { name, permissions }, { new: true })
+
+
         res.json({
             success: true,
-            message: "update role"
+            message: "ویرایش نقش موفقیت آمیز بود.",
+            role: newRole
         })
     } catch (err) {
         next(err)
