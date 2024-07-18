@@ -57,6 +57,7 @@ export const updateRole = async (req, res, next) => {
 
         // check super admin role
         if (exsitRole.key === 'super_admin') sendErrorResponse("نقش ادمین اصلی غیر قابل ویرایش است.", 422)
+            
         // update role
         const newRole = await Role.findByIdAndUpdate(req.params.id, { name, permissions }, { new: true })
 

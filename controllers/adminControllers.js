@@ -1,15 +1,13 @@
 import Admin from "../models/Admin.js";
-import fs from 'fs'
-import * as path from 'path'
 import { sendErrorResponse } from "../helper/responses.js";
 import { comparePassword, hashed } from "../helper/authHelper.js";
 import jwt from "jsonwebtoken";
-import { log } from "console";
 import Role from "../models/Role.js";
+
 
 export const getAllAdmins = async (req, res, next) => {
     try {
-
+        console.log("get all admins");
         const admins = await Admin.find().populate("role").select(["-password"])
 
         res.status(200).json({
@@ -37,12 +35,12 @@ export const getAdmin = async (req, res, next) => {
 
 
 export const createAdmin = async (req, res, next) => {
-    const { email, fullname, mobile, password, role } = req.body
+    const { email, fullname, mobile, password, role_id } = req.body
 
     try {
 
         //check role
-        const selectRole = await Role.findById(role)
+        const selectRole = await Role.findById(role_id)
         if (!selectRole) sendErrorResponse("شناسه دسته بندی نامعتبر است.", 422)
 
         const existAdmin = await Admin.findOne({ email })
@@ -50,33 +48,7 @@ export const createAdmin = async (req, res, next) => {
 
         const hashedPassword = await hashed(password)
 
-        let fileName = ""
-        let url = ""
-        if (req.files != null) {
-            const file = req.files.file
-            const fileSize = file.data.length
-            const ext = path.extname(file.name)
-            const dateNow = Math.round(Date.now())
-            fileName = dateNow + ext
-            const allowTypes = ['.jpg', '.jpeg', '.png']
-
-            if (!allowTypes.includes(ext.toLowerCase())) sendErrorResponse("فرمت عکس مجاز نیست.", 422)
-            if (fileSize > 2000000) sendErrorResponse("حجم تصویر نباید بیشتر از 2 مگابایت باشد.", 422)
-
-            url = `${req.protocol}://${req.get("host")}/admin/${fileName}`
-
-            await file.mv(`./public/admin/${fileName}`, async (err) => {
-
-                if (err) {
-                    res.status(422).json({
-                        success: false,
-                        message: err.message
-                    })
-                }
-            })
-        }
-
-        const admin = await Admin.create({ email, password: hashedPassword, url, image: fileName, fullname, mobile, role: selectRole })
+        const admin = await Admin.create({ email, password: hashedPassword, fullname, mobile, role_id })
         res.status(201).json({
             success: true,
             message: "مدیر جدید با موفقیت ایجاد شد."
@@ -119,24 +91,28 @@ export const deleteAdmin = async (req, res, next) => {
     }
 }
 export const updateAdmin = async (req, res, next) => {
-    const { email, fullname, mobile, role } = req.body
+    const { email, fullname, mobile, role_id } = req.body
     try {
+        if (req.params.id == req.admin._id) {
+            sendErrorResponse("شما نمیتوانید خودتان را ویرایش کنید.", 422)
+        } else {
+            // check role
+            const selectRole = await Role.findById(role_id)
+            if (!selectRole) sendErrorResponse("شناسه دسته بندی نامعتبر است.", 422)
 
-        // check role
-        const selectRole = await Role.findById(role)
-        if (!selectRole) sendErrorResponse("شناسه دسته بندی نامعتبر است.", 422)
+            // check exit admin
+            const existAdmin = await Admin.findById(req.params.id)
+            if (!existAdmin) sendErrorResponse('مدیری با این شناسه یافت نشد.', 404)
 
-        // check exit admin
-        const existAdmin = await Admin.findById(req.params.id)
-        if (!existAdmin) sendErrorResponse('مدیری با این شناسه یافت نشد.', 404)
+            // update admin
+            await Admin.findByIdAndUpdate(req.params.id, { email, fullname, mobile, role_id })
 
-        // update admin
-        await Admin.findByIdAndUpdate(req.params.id, { email, fullname, mobile, role })
+            res.status(200).json({
+                success: true,
+                message: 'ویرایش مدیر موفقیت آمیز بود.'
+            })
+        }
 
-        res.status(200).json({
-            success: true,
-            message: 'ویرایش مدیر موفقیت آمیز بود.'
-        })
     } catch (err) {
         next(err)
     }
