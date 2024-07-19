@@ -57,7 +57,7 @@ export const updateRole = async (req, res, next) => {
 
         // check super admin role
         if (exsitRole.key === 'super_admin') sendErrorResponse("نقش ادمین اصلی غیر قابل ویرایش است.", 422)
-            
+
         // update role
         const newRole = await Role.findByIdAndUpdate(req.params.id, { name, permissions }, { new: true })
 
@@ -73,17 +73,21 @@ export const updateRole = async (req, res, next) => {
 }
 export const deleteRole = async (req, res, next) => {
     try {
-
-        const existRole = await Role.findById(req.params.id)
-
+        // check role exist
+        const existRole = await Role.findById(req.params.id).populate("admins")
         if (!existRole) sendErrorResponse("نقشی با این شناسه یافت نشد.", 404)
+
+        // check super admin role
         if (existRole.key == "super_admin") sendErrorResponse("امکان حذف نقش سوپر ادمین نیست", 403)
 
+        if (existRole.admins.length > 0) sendErrorResponse("تعدادی مدیران دارای این مجوز هستن", 422)
+
+        // delete role
         const role = await Role.findByIdAndDelete(req.params.id)
 
         res.json({
             success: true,
-            message: `نقش ${role.name} با موفقیت حذف شد.`
+            message: `نقش ${role.name} با موفقیت حذف شد.`,
         })
     } catch (err) {
         next(err)
