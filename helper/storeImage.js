@@ -43,7 +43,7 @@ export const storeImage = async (req, res, next, address, required = true) => {
 
 export const handleDeleteFile = async (type, fileName) => {
     const filePath = `./public/${type}/${fileName}`
-    if (fs.existsSync(filePath)) {
+    if (fs.existsSync(filePath) && fileName !="") {
         await fs.unlinkSync(filePath)
     } else {
         console.log("not file")

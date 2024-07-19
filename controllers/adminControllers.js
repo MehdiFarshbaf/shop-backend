@@ -1,13 +1,19 @@
+import jwt from "jsonwebtoken";
+
+// import models
+import Role from "../models/Role.js";
 import Admin from "../models/Admin.js";
+
+// helpers
 import { sendErrorResponse } from "../helper/responses.js";
 import { comparePassword, hashed } from "../helper/authHelper.js";
-import jwt from "jsonwebtoken";
-import Role from "../models/Role.js";
+import { handleDeleteFile, storeImage } from "../helper/storeImage.js";
+
+
 
 
 export const getAllAdmins = async (req, res, next) => {
     try {
-        console.log("get all admins");
         const admins = await Admin.find().populate("role").select(["-password"])
 
         res.status(200).json({
@@ -146,6 +152,42 @@ export const loginAdmin = async (req, res, next) => {
                 updatedAt: admin.updatedAt
             }
         })
+    } catch (err) {
+        next(err)
+    }
+}
+
+export const updateProfileAdmin = async (req, res, next) => {
+    try {
+        const { fullname, email, mobile } = req.body
+        const adminId = req.admin.id
+        let fileName = ""
+        let url = ""
+
+        // find admin and check exist admin
+        const existAmdin = await Admin.findById(adminId)
+        if (!existAmdin) sendErrorResponse("مدیری با این شناسه یافت نشد.", 404)
+
+        // check image
+        if (req.files === null) {
+            fileName = existAmdin.image
+            url = existAmdin.url
+        } else {
+            await handleDeleteFile("admin", existAmdin.image)
+            const { fileName: newFileName, url: newUrl } = await storeImage(req, res, next, "admin")
+            fileName = newFileName
+            url = newUrl
+        }
+
+        // update admin
+        const admin = await Admin.findByIdAndUpdate(adminId, { fullname, email, mobile, url, image: fileName }, { new: true }).select(["-password"]).populate('role')
+
+        res.status(200).json({
+            success: true,
+            message: 'ویرایش پروفایل موفقیت آمیز بود.',
+            profile: admin
+        })
+
     } catch (err) {
         next(err)
     }
