@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+
 const adminSchema = new mongoose.Schema({
     email: {
         type: String,
@@ -37,11 +38,12 @@ const adminSchema = new mongoose.Schema({
     },
     passwordChangeAt: Date,
     passwordResetToken: String,
-    passwordResetExpire: Date,
+    passwordResetExpireOTP: Date,
+    otp: String
 }, {
     timestamps: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true }
+    toJSON: {virtuals: true},
+    toObject: {virtuals: true}
 })
 
 adminSchema.virtual("role", {
@@ -50,4 +52,5 @@ adminSchema.virtual("role", {
     foreignField: '_id',
     justOne: true
 })
+
 export default mongoose.model("Admin", adminSchema)

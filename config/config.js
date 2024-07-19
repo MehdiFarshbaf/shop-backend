@@ -43,3 +43,4 @@ export const superAdmin = {
 export const allowTypesImages = ['.jpg', '.jpeg', '.png']
 
 export const baseURL = "https://back-shop.farshbaf-dev.ir"
+export const offlineURL = "http://localhost:3003/"

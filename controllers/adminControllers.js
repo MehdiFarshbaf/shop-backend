@@ -6,9 +6,9 @@ import Admin from "../models/Admin.js";
 
 // helpers
 import { sendErrorResponse } from "../helper/responses.js";
-import { comparePassword, hashed } from "../helper/authHelper.js";
+import { comparePassword, createOTP, hashed } from "../helper/authHelper.js";
 import { handleDeleteFile, storeImage } from "../helper/storeImage.js";
-
+import { transporter } from "./sendEmail.js";
 
 
 
@@ -147,7 +147,7 @@ export const loginAdmin = async (req, res, next) => {
                 fullname: admin.fullname,
                 mobile: admin.mobile,
                 image: admin.image,
-                url:admin.url,
+                url: admin.url,
                 role: admin.role,
                 createdAt: admin.createdAt,
                 updatedAt: admin.updatedAt
@@ -181,7 +181,13 @@ export const updateProfileAdmin = async (req, res, next) => {
         }
 
         // update admin
-        const admin = await Admin.findByIdAndUpdate(adminId, { fullname, email, mobile, url, image: fileName }, { new: true }).select(["-password"]).populate('role')
+        const admin = await Admin.findByIdAndUpdate(adminId, {
+            fullname,
+            email,
+            mobile,
+            url,
+            image: fileName
+        }, { new: true }).select(["-password"]).populate('role')
 
         res.status(200).json({
             success: true,
@@ -218,6 +224,66 @@ export const changePasswordAdmin = async (req, res, next) => {
             success: true,
             message: 'گذرواژه شما با موفقیت تغییر کرد.'
         })
+    } catch (err) {
+        next(err)
+    }
+}
+export const forgotPasswordAdmin = async (req, res, next) => {
+    const { email } = req.body
+    try {
+        // find admin and check exist admin
+        const admin = await Admin.findOne({ email })
+        if (!admin) sendErrorResponse("مدیری با این ایمیل یافت نشد.", 404)
+
+        const otp = await createOTP()
+        admin.otp = otp
+        admin.passwordResetExpireOTP = Date.now() + 30 * 60 * 1000
+        await admin.save()
+
+        const resetUrl = `
+        <p>کد زیر برای تغییر رمز عبور استفاده کنید</p>
+        <p>${otp}</p>`
+        const details = {
+            from: "resetPassword@gmail.com",
+            to: email,
+            subject: "تغییر رمز عبور",
+            "html": resetUrl
+        }
+
+        await transporter.sendMail(details)
+        res.status(200).json({
+            success: true,
+            message: `کد ارسال شده به ایمیلتان را وارد کنید.`,
+
+        })
+    } catch (err) {
+        next(err)
+    }
+}
+
+export const resetPasswordAdmin = async (req, res, next) => {
+    const { password, otp, email } = req.body
+
+    try {
+        const admin = await Admin.findOne({ email, passwordResetExpireOTP: { $gt: new Date() } })
+        if (!admin) sendErrorResponse("jjjکد شما منقضی شده است.", 422)
+
+        if (otp == admin.otp) {
+            const hashPassword = await hashed(password)
+            admin.password = hashPassword
+            admin.otp = undefined
+            admin.passwordResetExpireOTP = undefined
+            await admin.save()
+
+            res.json({
+                success: true,
+                message: "پسورد با موفقیت تغییر کرد."
+            })
+
+        } else {
+            sendErrorResponse("کد وارد شده اشتباه است.", 422)
+        }
+
     } catch (err) {
         next(err)
     }

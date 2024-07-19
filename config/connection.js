@@ -21,7 +21,7 @@ export const connectDB = async () => {
         //create super admin role
         let newSuperAdminRole = {}
 
-        // check super_admin role is exist
+        // check super_admin role is existed
         const findSuperAdminRole = await Role.findOne({ key: 'super_admin' })
 
 
