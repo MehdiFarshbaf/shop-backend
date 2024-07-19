@@ -35,6 +35,9 @@ const adminSchema = new mongoose.Schema({
         ref: "Role",
         required: [true, "شناسه نقش الزامی است."]
     },
+    passwordChangeAt: Date,
+    passwordResetToken: String,
+    passwordResetExpire: Date,
 }, {
     timestamps: true,
     toJSON: { virtuals: true },

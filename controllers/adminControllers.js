@@ -146,7 +146,8 @@ export const loginAdmin = async (req, res, next) => {
                 email: admin.email,
                 fullname: admin.fullname,
                 mobile: admin.mobile,
-                image: admin.url,
+                image: admin.image,
+                url:admin.url,
                 role: admin.role,
                 createdAt: admin.createdAt,
                 updatedAt: admin.updatedAt
@@ -188,6 +189,35 @@ export const updateProfileAdmin = async (req, res, next) => {
             profile: admin
         })
 
+    } catch (err) {
+        next(err)
+    }
+}
+
+export const changePasswordAdmin = async (req, res, next) => {
+    try {
+        const { password, newPassword } = req.body
+        const adminId = req.admin.id
+
+        // find admin and check exist admin
+        const admin = await Admin.findById(adminId)
+        if (!admin) sendErrorResponse("مدیری با این شناسه یافت نشد.", 404)
+
+        // compare password
+        const match = await comparePassword(password, admin.password)
+        if (!match) sendErrorResponse("گذرواژه اشتباه است.", 401)
+
+        // hash password
+        const hashedPassword = await hashed(newPassword)
+
+        // update password
+        admin.password = hashedPassword
+        admin.save()
+
+        res.status(200).json({
+            success: true,
+            message: 'گذرواژه شما با موفقیت تغییر کرد.'
+        })
     } catch (err) {
         next(err)
     }

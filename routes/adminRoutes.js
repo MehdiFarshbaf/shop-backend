@@ -2,6 +2,7 @@ import express from "express";
 
 //controllers
 import {
+    changePasswordAdmin,
     createAdmin,
     deleteAdmin,
     getAdmin,
@@ -17,12 +18,13 @@ import { validateMongoDbId } from "../middlewares/validateMongoDbId.js";
 import { verifyAdmin } from "../middlewares/verifyAdmin.js";
 
 //validations
-import { adminCreateSchema, adminUpdateSchema, loginAdminSchema } from "../validations/adminSchemas.js";
+import { adminCreateSchema, adminUpdateSchema, loginAdminSchema,changePasswordSchema } from "../validations/adminSchemas.js";
 import { checkPermission } from "../middlewares/checkPermission.js";
 
 const router = express.Router()
 
 router.put("/profile", verifyAdmin, validation(adminUpdateSchema), updateProfileAdmin)
+router.put("/change-password",verifyAdmin,validation(changePasswordSchema),changePasswordAdmin)
 router.get("/", verifyAdmin, checkPermission('admins'), getAllAdmins)
 router.get("/:id", verifyAdmin, checkPermission('admins'), getAdmin)
 router.post("/", verifyAdmin, checkPermission('create_admin'), validation(adminCreateSchema), createAdmin)
